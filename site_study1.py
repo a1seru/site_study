@@ -1,24 +1,27 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-app = Flask(__name__, static_folder="D:\\site_study\\static")
+app = Flask(__name__, static_folder=os.path.join(os.path.abspath(os.path.dirname(__file__)), 'static'))
 
-app.secret_key = 'секретный_ключ'  # Защита сессий
+app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key')
 
-# Подключение базы SQLite
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Модель пользователя
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
 
-# Создаем базу при первом запуске
+
 with app.app_context():
     db.create_all()
 
@@ -29,21 +32,20 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
-        return redirect(url_for('dashboard'))  # если юзер уже залогинен, не отправлять его на login
+        return redirect(url_for('dashboard'))
     
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         user = User.query.filter_by(username=username).first()
 
-        if user and user.password == password:  # проверяем данные
+        if user and user.password == password: 
             session['user_id'] = user.id
             return redirect(url_for('dashboard'))
         else:
             flash("Неверные данные, попробуйте снова.", "error")
 
-    return render_template('index_study.html')  # отрисовываем страницу логина
-
+    return render_template('index_study.html') 
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -51,18 +53,16 @@ def register():
         password = request.form.get("password")
 
         if username and password:
-            # Проверяем, существует ли уже пользователь с таким именем
+
             existing_user = User.query.filter_by(username=username).first()
             if existing_user:
                 flash("Пользователь с таким именем уже существует!", "error")
                 return redirect(url_for("register"))
-
-            # Если пользователя нет, создаем нового
             user = User(username=username, password=password)
             db.session.add(user)
             db.session.commit()
             flash("Регистрация успешна!", "success")
-            return redirect(url_for("login"))  # Перенаправление на страницу входа
+            return redirect(url_for("login")) 
 
     return render_template("register.html")
 
@@ -70,9 +70,9 @@ def register():
 def dashboard():
     if 'user_id' not in session:
         flash("Войдите в систему!", "error")
-        return redirect(url_for('login'))  # если не залогинен — отправляем на вход
+        return redirect(url_for('login'))  
     
-    user = User.query.get(session['user_id'])  # получаем пользователя из БД
+    user = User.query.get(session['user_id']) 
     return render_template("dashboard.html", username=user.username)
 
 @app.route('/logout')
@@ -81,4 +81,5 @@ def logout():
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
-    app.run(debug=True) # python site_study1.py
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
