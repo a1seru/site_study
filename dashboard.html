@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Обо мне</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+    <header class="header">
+        <h1 class="welcome">Добро пожаловать, {{ username }}!</h1>
+        <a href="/logout" class="logout-button">Выйти</a>
+    </header>
+    
+    <div class="bio-container">
+        <img src="/static/avatar.jpg" alt="Твое фото" class="bio-avatar">
+        <div class="bio-text">
+            <h2 class="bio-title">Привет, я Азамат.</h2>
+            <p class="bio-description">Обучаюсь и стараюсь стать лучше, если есть советы по сайту, обращаться ниже.</p>
+            <button class="bio-button" onclick="window.location.href='https://t.me/a1seru';">Связаться</button>
+            <div class="contact-info">
+                <p>Email: aza44960@gmail.com</p>
+                <p>Telegram: @a1seru</p>
+                <p>Phone: +77718473282</p>
+            </div>            
+        </div>
+    </div>
+    <div class="dropdown">
+        <button class="dropbtn">Меню</button>
+        <div class="dropdown-content">
+            <a href="page1.html">button1</a>
+            <a href="page2.html">button2</a>
+            <a href="page3.html">button3</a>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $(".bio-container").css("opacity", "0").animate({opacity: 1}, 1000);
+            
+            $(".bio-button").hover(function() {
+                $(this).css("transform", "scale(1.1)");
+            }, function() {
+                $(this).css("transform", "scale(1)");
+            });
+        });
+    </script>
+</body>
+</html>
